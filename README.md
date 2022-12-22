@@ -1,3 +1,3 @@
-# GP_GameplayExam
+# JumpPointSearchPlus-With-GoalBounding 
 
-Research topic: Jump point search+
+Research topic: Jump point search+ (JPS+) with goalbounding
