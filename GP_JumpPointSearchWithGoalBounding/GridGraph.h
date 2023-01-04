@@ -8,6 +8,13 @@
 class GridGraph
 {
 public:
+
+	struct Wall
+	{
+		int column; 
+		int row;
+	};
+
 	std::vector<GraphNode*> NodeVector;
 	std::list<GraphConnection*> ConnectionList;
 	std::vector <std::list<GraphConnection*>> ConnectionListVector;
@@ -32,6 +39,8 @@ public:
 	void AddConnectionsToAdjacentCells(int col, int row);
 	void AddConnectionsToAdjacentCells(int idx);
 
+	bool isWallHere(int col, int row);
+
 private:
 	int m_NrOfColumns;
 	int m_NrOfRows;
@@ -41,6 +50,7 @@ private:
 	
 	std::vector<GraphNode*> m_Nodes;
 	std::vector<GraphConnection> m_Connections;
+	std::vector<Wall> m_Walls;
 
 	void AddConnectionsInDirections(int idx, int col, int row);
 };

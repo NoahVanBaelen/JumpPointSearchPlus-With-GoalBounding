@@ -9,7 +9,8 @@ struct Vector2
 class GraphNode
 {
 public:
-	GraphNode(int index, Vector2 position);
+	GraphNode();
+	GraphNode(int index, Vector2 position, int row, int column);
 	~GraphNode() = default;
 
 	int GetIndex() const;
@@ -18,8 +19,14 @@ public:
 	Vector2 GetPosition() const;
 	void SetPosition(Vector2 newPosition);
 
+	int GetRow() const;
+
+	int GetColumn() const;
+
 private:
 	int m_Index;
 	Vector2 m_Position;
+	int m_Row;
+	int m_Column;
 };
 

@@ -84,6 +84,21 @@ int GridGraph::GetIndex(int col, int row) const
 	return row * m_NrOfColumns + col;
 }
 
+bool GridGraph::isWallHere(int col, int row)
+{
+	if (isWithinBounds(col,row))
+	{
+		for (const Wall& wall : m_Walls)
+		{
+			if (wall.column == col && wall.row == row)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 void GridGraph::AddConnectionsToAdjacentCells(int col, int row)
 {
 
@@ -94,7 +109,7 @@ void GridGraph::AddConnectionsToAdjacentCells(int idx)
 
 }
 
-void AddConnectionsInDirections(int idx, int col, int row)
+void GridGraph::AddConnectionsInDirections(int idx, int col, int row)
 {
 
 }
