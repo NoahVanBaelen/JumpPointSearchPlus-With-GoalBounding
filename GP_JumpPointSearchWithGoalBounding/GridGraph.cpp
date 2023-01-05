@@ -1,11 +1,35 @@
 #include "GridGraph.h"
+#include "JPS.h"
 
 GridGraph::GridGraph(int nrColumns, int nrRows, int cellSize, Engine* enginePtr)
 	:m_NrOfColumns{nrColumns}
 	,m_NrOfRows{nrRows}
 	,m_CellSize{cellSize}
 	,m_MyEnginePtr{enginePtr}
-{}
+{
+	for (int row = 0; row < m_NrOfRows; row++)
+	{
+		for (int column = 0; column < m_NrOfColumns; column++)
+		{
+			m_Nodes.push_back(new GraphNode{ column + m_NrOfColumns * row,
+											Vector2{static_cast<float>(cellSize / 2.f + cellSize * column),static_cast<float>(cellSize / 2.f + cellSize * row)},
+											row,column });
+		}
+	}
+
+	m_Walls.push_back(Wall{ 3,4 });
+	m_Walls.push_back(Wall{ 5,4 });
+
+	m_Walls.push_back(Wall{ 3,6 });
+	m_Walls.push_back(Wall{ 5,6 });
+
+	m_StartNode = m_Nodes[54];
+	m_GoalNode = m_Nodes[12];
+
+	m_pJumpPointSearch = new JPS{ this };
+	m_pJumpPointSearch->CreateBoundingBox(m_StartNode);
+	m_Path = m_pJumpPointSearch->FindPath(m_StartNode, m_GoalNode);
+}
 
 GridGraph::~GridGraph()
 {
@@ -30,9 +54,16 @@ GridGraph::~GridGraph()
 
 void GridGraph::DrawGrid()
 {
-	m_MyEnginePtr->SetColor(1, 1, 1);
+	m_MyEnginePtr->SetColor(0, 0, 0);
 	m_MyEnginePtr->DrawRect(0, 0, m_CellSize * m_NrOfColumns, m_CellSize * m_NrOfRows);
 
+	m_MyEnginePtr->SetColor(255, 255, 0);
+	m_MyEnginePtr->FillEllipse(m_StartNode->GetPosition().x, m_StartNode->GetPosition().y, 20, 20);
+
+	m_MyEnginePtr->SetColor(0, 255, 255);
+	m_MyEnginePtr->FillEllipse(m_GoalNode->GetPosition().x, m_GoalNode->GetPosition().y, 20, 20);
+
+	m_MyEnginePtr->SetColor(0, 0, 0);
 	for (int i = 1; i < m_NrOfColumns; i++)
 	{
 		m_MyEnginePtr->DrawLine(m_CellSize * i, 0, m_CellSize * i, m_CellSize * m_NrOfRows);
@@ -42,6 +73,23 @@ void GridGraph::DrawGrid()
 	{
 		m_MyEnginePtr->DrawLine(0, m_CellSize * i, m_CellSize * m_NrOfColumns, m_CellSize * i);
 	}
+
+	DrawWall();
+}
+
+void GridGraph::DrawWall()
+{
+	m_MyEnginePtr->SetColor(0, 0, 0);
+
+	for (const Wall& wall : m_Walls)
+	{
+		m_MyEnginePtr->FillRect(wall.column * m_CellSize, wall.row * m_CellSize, m_CellSize, m_CellSize);
+	}
+}
+
+void GridGraph::DrawBoundingBox()
+{
+	m_MyEnginePtr->SetColor(0, 0, 255);
 }
 
 GraphNode* GridGraph::GetNode(int index) const

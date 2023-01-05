@@ -20,6 +20,14 @@ public:
 		{
 			return estimatedTotalCost < other.estimatedTotalCost;
 		};
+
+		bool operator==(const NodeRecord& other) const
+		{
+			return pNode == other.pNode
+				&& pConnection == other.pConnection
+				&& costSoFar == other.costSoFar
+				&& estimatedTotalCost == other.estimatedTotalCost;
+		};
 	};
 
 	struct NodeBoundingBox
@@ -42,6 +50,11 @@ public:
 	void CreateBoundingBox(GraphNode* pStartNode);
 	std::vector<GraphNode*> FindPath(GraphNode* pStartNode, GraphNode* pGoalNode);
 
+	BoundingBox GetNorthBoundingBox();
+	BoundingBox GetEastBoundingBox();
+	BoundingBox GetWestBoundingBox();
+	BoundingBox GetSouthBoundingBox();
+
 private:
 	GridGraph* m_Graph;
 
@@ -51,9 +64,15 @@ private:
 	BoundingBox m_WestBoundingBox;
 	BoundingBox m_SouthBoundingBox;
 
-	bool HorizontalScan(Vector2 startpos, std::vector<NodeRecord>& openList, std::vector<NodeRecord>& closedList, float cost);
-	bool VerticalScan(Vector2 startpos, std::vector<NodeRecord>& openList, std::vector<NodeRecord>& closedList, float cost);
+	std::vector<GraphNode*> m_NorthNodes;
+	std::vector<GraphNode*> m_EastNodes;
+	std::vector<GraphNode*> m_WestNodes;
+	std::vector<GraphNode*> m_SouthNodes;
+
+	bool HorizontalScan(Vector2 startpos, std::vector<NodeRecord>& openList, std::vector<NodeRecord>& closedList, float cost, GraphNode* pGoalNode);
+	bool VerticalScan(Vector2 startpos, std::vector<NodeRecord>& openList, std::vector<NodeRecord>& closedList, float cost, GraphNode* pGoalNode);
 	bool IsAlreadyInBoundingBox(int x, int y);
 	void SetBoundingBoxes();
+	bool IsInBoundingBoxes(GraphNode* pGoalNode, GraphNode* pCurrentNode);
 };
 

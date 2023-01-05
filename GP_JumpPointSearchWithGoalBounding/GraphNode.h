@@ -13,6 +13,15 @@ public:
 	GraphNode(int index, Vector2 position, int row, int column);
 	~GraphNode() = default;
 
+	bool operator==(const GraphNode& other) const
+	{
+		return m_Index == other.m_Index &&
+			m_Position.x == other.m_Position.x &&
+			m_Position.y == other.m_Position.y &&
+			m_Row == other.m_Row &&
+			m_Column == other.m_Column;
+	}
+
 	int GetIndex() const;
 	void SetIndex(int newIdx);
 

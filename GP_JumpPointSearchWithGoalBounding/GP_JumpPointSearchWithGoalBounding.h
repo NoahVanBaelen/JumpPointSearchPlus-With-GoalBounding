@@ -21,6 +21,8 @@ public:
 	void SetColor(int r, int g, int b);
 	void DrawLine(int x1, int y1, int x2, int y2);
 	void DrawRect(int x1, int y1, int width, int height);
+	void FillRect(int x1, int y1, int width, int height);
+	void FillEllipse(int x1, int y1, int radiusX, int radiusY);
 
 	int m_Width;
 	int m_Height;

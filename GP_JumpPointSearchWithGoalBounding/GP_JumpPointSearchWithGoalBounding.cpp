@@ -174,3 +174,25 @@ void Engine::DrawRect(int x1, int y1, int width, int height)
     DeleteObject(pen);
 }
 
+void Engine::FillRect(int x1, int y1, int width, int height)
+{
+    HBRUSH brush = CreateSolidBrush(m_Color);
+    HBRUSH oldBrush = (HBRUSH)SelectObject(m_hDC, brush);
+
+    Rectangle(m_hDC, x1, y1 + height, x1 + width, y1);
+
+    SelectObject(m_hDC, oldBrush);
+    DeleteObject(brush);
+}
+
+void Engine::FillEllipse(int x1, int y1, int radiusX, int radiusY)
+{
+    HBRUSH brush = CreateSolidBrush(m_Color);
+    HBRUSH oldBrush = (HBRUSH)SelectObject(m_hDC, brush);
+
+    Ellipse(m_hDC, x1 - radiusX / 2, y1 - radiusY / 2, x1 + radiusX / 2, y1 + radiusY / 2);
+
+    SelectObject(m_hDC, oldBrush);
+    DeleteObject(brush);
+}
+

@@ -5,6 +5,7 @@
 #include "GraphConnection.h"
 #include "GP_JumpPointSearchWithGoalBounding.h"
 
+class JPS;
 class GridGraph
 {
 public:
@@ -23,6 +24,8 @@ public:
 	~GridGraph();
 
 	void DrawGrid();
+	void DrawWall();
+	void DrawBoundingBox();
 
 	GraphNode* GetNode(int index) const;
 	GraphNode* GetNode(int col, int row) const;
@@ -46,11 +49,17 @@ private:
 	int m_NrOfRows;
 	int m_CellSize;
 
+	GraphNode* m_StartNode;
+	GraphNode* m_GoalNode;
+
+	JPS* m_pJumpPointSearch;
+
 	Engine* m_MyEnginePtr;
 	
 	std::vector<GraphNode*> m_Nodes;
 	std::vector<GraphConnection> m_Connections;
 	std::vector<Wall> m_Walls;
+	std::vector<GraphNode*> m_Path;
 
 	void AddConnectionsInDirections(int idx, int col, int row);
 };
