@@ -37,32 +37,17 @@ public:
 
 	};
 
-	struct BoundingBox
-	{
-		Vector2 startPosition;
-		float width;
-		float height;
-	};
-
 	JPS(GridGraph* gridGraph);
 	~JPS() = default;
 
 	void CreateBoundingBox(GraphNode* pStartNode);
 	std::vector<GraphNode*> FindPath(GraphNode* pStartNode, GraphNode* pGoalNode);
-
-	BoundingBox GetNorthBoundingBox();
-	BoundingBox GetEastBoundingBox();
-	BoundingBox GetWestBoundingBox();
-	BoundingBox GetSouthBoundingBox();
+	std::vector<GraphNode*> GetUsedBoundingBox(GraphNode* pGoalNode);
 
 private:
 	GridGraph* m_Graph;
 
 	std::vector<NodeBoundingBox> m_vectorBoundingBoxes;
-	BoundingBox m_NoordBoundingBox;
-	BoundingBox m_EastBoundingBox;
-	BoundingBox m_WestBoundingBox;
-	BoundingBox m_SouthBoundingBox;
 
 	std::vector<GraphNode*> m_NorthNodes;
 	std::vector<GraphNode*> m_EastNodes;
@@ -74,5 +59,6 @@ private:
 	bool IsAlreadyInBoundingBox(int x, int y);
 	void SetBoundingBoxes();
 	bool IsInBoundingBoxes(GraphNode* pGoalNode, GraphNode* pCurrentNode);
+	void CheckList(NodeRecord newRecord, std::vector<NodeRecord>& list);
 };
 

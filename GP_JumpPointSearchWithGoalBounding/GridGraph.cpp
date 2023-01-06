@@ -17,14 +17,9 @@ GridGraph::GridGraph(int nrColumns, int nrRows, int cellSize, Engine* enginePtr)
 		}
 	}
 
-	m_Walls.push_back(Wall{ 3,4 });
-	m_Walls.push_back(Wall{ 5,4 });
-
-	m_Walls.push_back(Wall{ 3,6 });
-	m_Walls.push_back(Wall{ 5,6 });
-
 	m_StartNode = m_Nodes[54];
-	m_GoalNode = m_Nodes[12];
+	m_GoalNode = m_Nodes[70];
+	initializeWalls();
 
 	m_pJumpPointSearch = new JPS{ this };
 	m_pJumpPointSearch->CreateBoundingBox(m_StartNode);
@@ -57,12 +52,6 @@ void GridGraph::DrawGrid()
 	m_MyEnginePtr->SetColor(0, 0, 0);
 	m_MyEnginePtr->DrawRect(0, 0, m_CellSize * m_NrOfColumns, m_CellSize * m_NrOfRows);
 
-	m_MyEnginePtr->SetColor(255, 255, 0);
-	m_MyEnginePtr->FillEllipse(m_StartNode->GetPosition().x, m_StartNode->GetPosition().y, 20, 20);
-
-	m_MyEnginePtr->SetColor(0, 255, 255);
-	m_MyEnginePtr->FillEllipse(m_GoalNode->GetPosition().x, m_GoalNode->GetPosition().y, 20, 20);
-
 	m_MyEnginePtr->SetColor(0, 0, 0);
 	for (int i = 1; i < m_NrOfColumns; i++)
 	{
@@ -75,6 +64,14 @@ void GridGraph::DrawGrid()
 	}
 
 	DrawWall();
+	DrawBoundingBox();
+	DrawPath();
+
+	m_MyEnginePtr->SetColor(0, 255, 0);
+	m_MyEnginePtr->FillEllipse(m_StartNode->GetPosition().x, m_StartNode->GetPosition().y, 20, 20);
+
+	m_MyEnginePtr->SetColor(255, 0, 0);
+	m_MyEnginePtr->FillEllipse(m_GoalNode->GetPosition().x, m_GoalNode->GetPosition().y, 20, 20);
 }
 
 void GridGraph::DrawWall()
@@ -89,7 +86,34 @@ void GridGraph::DrawWall()
 
 void GridGraph::DrawBoundingBox()
 {
-	m_MyEnginePtr->SetColor(0, 0, 255);
+	m_MyEnginePtr->SetColor(100, 100, 255);
+
+	std::vector<GraphNode*> boundingBox{ m_pJumpPointSearch->GetUsedBoundingBox(m_GoalNode) };
+
+	for (const GraphNode* boundingNode : boundingBox)
+	{
+		m_MyEnginePtr->FillRect(boundingNode->GetColumn() * m_CellSize, boundingNode->GetRow() * m_CellSize, m_CellSize, m_CellSize);
+	}
+
+	m_MyEnginePtr->FillRect(m_StartNode->GetColumn() * m_CellSize, m_StartNode->GetRow() * m_CellSize, m_CellSize, m_CellSize);
+}
+
+void GridGraph::DrawPath()
+{
+	m_MyEnginePtr->SetColor(255, 255, 100);
+	for (const GraphNode* node : m_Path)
+	{
+		m_MyEnginePtr->FillRect(node->GetColumn() * m_CellSize, node->GetRow() * m_CellSize, m_CellSize, m_CellSize);
+	}
+	m_MyEnginePtr->SetColor(0, 0, 0);
+	for (size_t i = 0; i < m_Path.size() - 1; i++)
+	{
+		m_MyEnginePtr->DrawLine(m_Path[i]->GetColumn() * m_CellSize + m_CellSize / 2.f,
+								m_Path[i]->GetRow() * m_CellSize + m_CellSize / 2.f,
+								m_Path[i+1]->GetColumn() * m_CellSize + m_CellSize / 2.f,
+								m_Path[i+1]->GetRow() * m_CellSize + m_CellSize / 2.f);
+	}
+
 }
 
 GraphNode* GridGraph::GetNode(int index) const
@@ -129,7 +153,11 @@ bool GridGraph::isWithinBounds(int col, int row) const
 
 int GridGraph::GetIndex(int col, int row) const
 {
-	return row * m_NrOfColumns + col;
+	if (isWithinBounds(col,row))
+	{
+		return row * m_NrOfColumns + col;
+	}
+	return NULL;
 }
 
 bool GridGraph::isWallHere(int col, int row)
@@ -147,17 +175,30 @@ bool GridGraph::isWallHere(int col, int row)
 	return false;
 }
 
-void GridGraph::AddConnectionsToAdjacentCells(int col, int row)
+void GridGraph::initializeWalls()
 {
+	m_Walls.push_back(Wall{ 0,2 });
+	m_Walls.push_back(Wall{ 1,2 });
+	m_Walls.push_back(Wall{ 2,2 });
 
-}
 
-void GridGraph::AddConnectionsToAdjacentCells(int idx)
-{
+	m_Walls.push_back(Wall{ 1,5 });
+	m_Walls.push_back(Wall{ 1,6 });
+	m_Walls.push_back(Wall{ 1,7 });
 
-}
+	m_Walls.push_back(Wall{ 3,4 });
+	m_Walls.push_back(Wall{ 3,6 });
 
-void GridGraph::AddConnectionsInDirections(int idx, int col, int row)
-{
+	m_Walls.push_back(Wall{ 5,0 });
+	m_Walls.push_back(Wall{ 5,1 });
+	m_Walls.push_back(Wall{ 5,3 });
+	m_Walls.push_back(Wall{ 5,4 });
+	m_Walls.push_back(Wall{ 5,5 });
+	m_Walls.push_back(Wall{ 5,6 });
 
+	m_Walls.push_back(Wall{ 8,0 });
+	m_Walls.push_back(Wall{ 8,1 });
+
+	m_Walls.push_back(Wall{ 7,8 });
+	m_Walls.push_back(Wall{ 9,8 });
 }

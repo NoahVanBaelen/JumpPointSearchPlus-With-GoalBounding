@@ -24,8 +24,6 @@ public:
 	~GridGraph();
 
 	void DrawGrid();
-	void DrawWall();
-	void DrawBoundingBox();
 
 	GraphNode* GetNode(int index) const;
 	GraphNode* GetNode(int col, int row) const;
@@ -62,5 +60,9 @@ private:
 	std::vector<GraphNode*> m_Path;
 
 	void AddConnectionsInDirections(int idx, int col, int row);
+	void initializeWalls();
+	void DrawWall();
+	void DrawBoundingBox();
+	void DrawPath();
 };
 
