@@ -37,29 +37,34 @@ public:
 	bool isWithinBounds(int col, int row) const;
 	int GetIndex(int col, int row) const;
 
-	void AddConnectionsToAdjacentCells(int col, int row);
-	void AddConnectionsToAdjacentCells(int idx);
-
 	bool isWallHere(int col, int row);
+
+	void toggleStart();
+	void toggleGoal();
+	void CalculatePath();
+	void SetStartAndGoalNode(int x, int y, bool isUp);
 
 private:
 	int m_NrOfColumns;
 	int m_NrOfRows;
 	int m_CellSize;
 
+	bool m_CanSetStart{ false };
+	bool m_CanSetGoal{ false };
+	bool m_CalculatePath{ false };
+
 	GraphNode* m_StartNode;
 	GraphNode* m_GoalNode;
 
 	JPS* m_pJumpPointSearch;
 
-	Engine* m_MyEnginePtr;
+	Engine* m_pMyEngine;
 	
 	std::vector<GraphNode*> m_Nodes;
 	std::vector<GraphConnection> m_Connections;
 	std::vector<Wall> m_Walls;
 	std::vector<GraphNode*> m_Path;
 
-	void AddConnectionsInDirections(int idx, int col, int row);
 	void initializeWalls();
 	void DrawWall();
 	void DrawBoundingBox();

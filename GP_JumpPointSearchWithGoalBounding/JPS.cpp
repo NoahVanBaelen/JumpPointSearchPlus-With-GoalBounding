@@ -100,17 +100,18 @@ std::vector<GraphNode*> JPS::FindPath(GraphNode* pStartNode, GraphNode* pGoalNod
 	closedList.push_back(startRecord);
 	bool goToNextConnection = false;
 
-	Vector2 startpos{startRecord.pNode->GetColumn(), startRecord.pNode->GetRow()};
+	Vector2 startpos{ static_cast<float>(startRecord.pNode->GetColumn()), static_cast<float>(startRecord.pNode->GetRow())};
 
 	while (!openList.empty())
 	{
+		// get node with lowest cost
 		currentRecord = *std::min_element(openList.begin(), openList.end());
 		if (currentRecord.pNode == pGoalNode)
 		{
 			break;
 		}
 
-		Vector2 startpos{ currentRecord.pNode->GetColumn(), currentRecord.pNode->GetRow() };
+		Vector2 startpos{ static_cast<float>(currentRecord.pNode->GetColumn()), static_cast<float>(currentRecord.pNode->GetRow()) };
 		Vector2 currentpos{ startpos };
 		bool doneWithMoving = false;
 
@@ -126,24 +127,27 @@ std::vector<GraphNode*> JPS::FindPath(GraphNode* pStartNode, GraphNode* pGoalNod
 			++currentpos.y;
 			currentRecord.costSoFar += 1.5f;
 
-			if (m_Graph->isWallHere(currentpos.x, currentpos.y + 1) &&
-				m_Graph->isWallHere(currentpos.x + 1, currentpos.y) || 
-				!IsInBoundingBoxes(pGoalNode, m_Graph->GetNode(currentpos.x, currentpos.y))
-				|| !(m_Graph->isWithinBounds(currentpos.x, currentpos.y)) || (m_Graph->isWallHere(currentpos.x, currentpos.y)))
+			//Check if next diagonaal is cornerd
+			if (m_Graph->isWallHere(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y) + 1) &&
+				m_Graph->isWallHere(static_cast<int>(currentpos.x) + 1, static_cast<int>(currentpos.y)) ||
+				!IsInBoundingBoxes(pGoalNode, m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)))
+				|| !(m_Graph->isWithinBounds(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y))) 
+				|| (m_Graph->isWallHere(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y))))
 			{
 				doneWithMoving = true;
 			}
 			else
 			{
-				if (m_Graph->isWallHere(currentpos.x + 1, currentpos.y) ||
-					m_Graph->isWallHere(currentpos.x - 1, currentpos.y) ||
-					m_Graph->isWallHere(currentpos.x, currentpos.y + 1) ||
-					m_Graph->isWallHere(currentpos.x, currentpos.y - 1) ||
-					m_Graph->GetNode(currentpos.x, currentpos.y) == pGoalNode)
+				if (m_Graph->isWallHere(static_cast<int>(currentpos.x) + 1, static_cast<int>(currentpos.y)) ||
+					m_Graph->isWallHere(static_cast<int>(currentpos.x) - 1, static_cast<int>(currentpos.y)) ||
+					m_Graph->isWallHere(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y) + 1) ||
+					m_Graph->isWallHere(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y) - 1) ||
+					m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) == pGoalNode)
 				{
 					NodeRecord newRecord{};
-					newRecord.pNode = m_Graph->GetNode(currentpos.x, currentpos.y);
-					newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(startpos.x, startpos.y),m_Graph->GetIndex(currentpos.x, currentpos.y) });
+					newRecord.pNode = m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y));
+					newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(static_cast<int>(startpos.x), static_cast<int>(startpos.y))
+																				,m_Graph->GetIndex(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) });
 					newRecord.estimatedTotalCost = currentRecord.estimatedTotalCost + currentRecord.costSoFar;
 
 					CheckList(newRecord, openList);
@@ -155,8 +159,9 @@ std::vector<GraphNode*> JPS::FindPath(GraphNode* pStartNode, GraphNode* pGoalNod
 					if (HorizontalScan(currentpos, openList, closedList, currentRecord.estimatedTotalCost + currentRecord.costSoFar, pGoalNode))
 					{
 						NodeRecord newRecord{};
-						newRecord.pNode = m_Graph->GetNode(currentpos.x, currentpos.y);
-						newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(startpos.x, startpos.y),m_Graph->GetIndex(currentpos.x, currentpos.y) });
+						newRecord.pNode = m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y));
+						newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(static_cast<int>(startpos.x), static_cast<int>(startpos.y))
+																					,m_Graph->GetIndex(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) });
 						newRecord.estimatedTotalCost = currentRecord.estimatedTotalCost + currentRecord.costSoFar;
 
 						CheckList(newRecord, closedList);
@@ -165,8 +170,9 @@ std::vector<GraphNode*> JPS::FindPath(GraphNode* pStartNode, GraphNode* pGoalNod
 					if (VerticalScan(currentpos, openList, closedList, currentRecord.estimatedTotalCost + currentRecord.costSoFar, pGoalNode))
 					{
 						NodeRecord newRecord{};
-						newRecord.pNode = m_Graph->GetNode(currentpos.x, currentpos.y);
-						newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(startpos.x, startpos.y),m_Graph->GetIndex(currentpos.x, currentpos.y) });
+						newRecord.pNode = m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y));
+						newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(static_cast<int>(startpos.x), static_cast<int>(startpos.y))
+																					,m_Graph->GetIndex(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) });
 						newRecord.estimatedTotalCost = currentRecord.estimatedTotalCost + currentRecord.costSoFar;
 
 						CheckList(newRecord, closedList);
@@ -188,24 +194,27 @@ std::vector<GraphNode*> JPS::FindPath(GraphNode* pStartNode, GraphNode* pGoalNod
 			++currentpos.y;
 			currentRecord.costSoFar += 1.5f;
 
-			if (m_Graph->isWallHere(currentpos.x, currentpos.y + 1) &&
-				m_Graph->isWallHere(currentpos.x - 1, currentpos.y) ||
-				!IsInBoundingBoxes(pGoalNode, m_Graph->GetNode(currentpos.x, currentpos.y))
-				|| !(m_Graph->isWithinBounds(currentpos.x, currentpos.y)) || (m_Graph->isWallHere(currentpos.x, currentpos.y)))
+			//Check if next diagonaal is corned
+			if (m_Graph->isWallHere(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y) + 1) &&
+				m_Graph->isWallHere(static_cast<int>(currentpos.x) - 1, static_cast<int>(currentpos.y)) ||
+				!IsInBoundingBoxes(pGoalNode, m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)))
+				|| !(m_Graph->isWithinBounds(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y))) 
+				|| (m_Graph->isWallHere(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y))))
 			{
 				doneWithMoving = true;
 			}
 			else
 			{
-				if (m_Graph->isWallHere(currentpos.x + 1, currentpos.y) ||
-					m_Graph->isWallHere(currentpos.x - 1, currentpos.y) ||
-					m_Graph->isWallHere(currentpos.x, currentpos.y + 1) ||
-					m_Graph->isWallHere(currentpos.x, currentpos.y - 1) ||
-					m_Graph->GetNode(currentpos.x, currentpos.y) == pGoalNode)
+				if (m_Graph->isWallHere(static_cast<int>(currentpos.x) + 1, static_cast<int>(currentpos.y)) ||
+					m_Graph->isWallHere(static_cast<int>(currentpos.x) - 1, static_cast<int>(currentpos.y)) ||
+					m_Graph->isWallHere(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y) + 1) ||
+					m_Graph->isWallHere(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y) - 1) ||
+					m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) == pGoalNode)
 				{
 					NodeRecord newRecord{};
-					newRecord.pNode = m_Graph->GetNode(currentpos.x, currentpos.y);
-					newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(startpos.x, startpos.y),m_Graph->GetIndex(currentpos.x, currentpos.y) });
+					newRecord.pNode = m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y));
+					newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(static_cast<int>(startpos.x), static_cast<int>(startpos.y))
+																				,m_Graph->GetIndex(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) });
 					newRecord.estimatedTotalCost = currentRecord.estimatedTotalCost + currentRecord.costSoFar;
 
 					CheckList(newRecord, openList);
@@ -217,8 +226,9 @@ std::vector<GraphNode*> JPS::FindPath(GraphNode* pStartNode, GraphNode* pGoalNod
 					if (HorizontalScan(currentpos, openList, closedList, currentRecord.estimatedTotalCost + currentRecord.costSoFar, pGoalNode))
 					{
 						NodeRecord newRecord{};
-						newRecord.pNode = m_Graph->GetNode(currentpos.x, currentpos.y);
-						newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(startpos.x, startpos.y),m_Graph->GetIndex(currentpos.x, currentpos.y) });
+						newRecord.pNode = m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y));
+						newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(static_cast<int>(startpos.x), static_cast<int>(startpos.y))
+																					,m_Graph->GetIndex(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) });
 						newRecord.estimatedTotalCost = currentRecord.estimatedTotalCost + currentRecord.costSoFar;
 
 						CheckList(newRecord, closedList);
@@ -227,8 +237,9 @@ std::vector<GraphNode*> JPS::FindPath(GraphNode* pStartNode, GraphNode* pGoalNod
 					if (VerticalScan(currentpos, openList, closedList, currentRecord.estimatedTotalCost + currentRecord.costSoFar, pGoalNode))
 					{
 						NodeRecord newRecord{};
-						newRecord.pNode = m_Graph->GetNode(currentpos.x, currentpos.y);
-						newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(startpos.x, startpos.y),m_Graph->GetIndex(currentpos.x, currentpos.y) });
+						newRecord.pNode = m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y));
+						newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(static_cast<int>(startpos.x), static_cast<int>(startpos.y))
+																					,m_Graph->GetIndex(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) });
 						newRecord.estimatedTotalCost = currentRecord.estimatedTotalCost + currentRecord.costSoFar;
 
 						CheckList(newRecord, closedList);
@@ -249,25 +260,27 @@ std::vector<GraphNode*> JPS::FindPath(GraphNode* pStartNode, GraphNode* pGoalNod
 			++currentpos.x;
 			--currentpos.y;
 			currentRecord.costSoFar += 1.5f;
-
-			if (m_Graph->isWallHere(currentpos.x, currentpos.y - 1) &&
-				m_Graph->isWallHere(currentpos.x + 1, currentpos.y) ||
-				!IsInBoundingBoxes(pGoalNode, m_Graph->GetNode(currentpos.x, currentpos.y))
-				|| !(m_Graph->isWithinBounds(currentpos.x, currentpos.y)) || (m_Graph->isWallHere(currentpos.x, currentpos.y)))
+			//Check if next diagonaal is corner 
+			if (m_Graph->isWallHere(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y) - 1) &&
+				m_Graph->isWallHere(static_cast<int>(currentpos.x) + 1, static_cast<int>(currentpos.y)) ||
+				!IsInBoundingBoxes(pGoalNode, m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)))
+				|| !(m_Graph->isWithinBounds(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y))) 
+				|| (m_Graph->isWallHere(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y))))
 			{
 				doneWithMoving = true;
 			}
 			else
 			{
-				if (m_Graph->isWallHere(currentpos.x + 1, currentpos.y) ||
-					m_Graph->isWallHere(currentpos.x - 1, currentpos.y) ||
-					m_Graph->isWallHere(currentpos.x, currentpos.y + 1) ||
-					m_Graph->isWallHere(currentpos.x, currentpos.y - 1) ||
-					m_Graph->GetNode(currentpos.x, currentpos.y) == pGoalNode)
+				if (m_Graph->isWallHere(static_cast<int>(currentpos.x) + 1, static_cast<int>(currentpos.y)) ||
+					m_Graph->isWallHere(static_cast<int>(currentpos.x) - 1, static_cast<int>(currentpos.y)) ||
+					m_Graph->isWallHere(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y) + 1) ||
+					m_Graph->isWallHere(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y) - 1) ||
+					m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) == pGoalNode)
 				{
 					NodeRecord newRecord{};
-					newRecord.pNode = m_Graph->GetNode(currentpos.x, currentpos.y);
-					newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(startpos.x, startpos.y),m_Graph->GetIndex(currentpos.x, currentpos.y) });
+					newRecord.pNode = m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y));
+					newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(static_cast<int>(startpos.x), static_cast<int>(startpos.y))
+																				,m_Graph->GetIndex(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) });
 					newRecord.estimatedTotalCost = currentRecord.estimatedTotalCost + currentRecord.costSoFar;
 
 					CheckList(newRecord, openList);
@@ -279,8 +292,9 @@ std::vector<GraphNode*> JPS::FindPath(GraphNode* pStartNode, GraphNode* pGoalNod
 					if (HorizontalScan(currentpos, openList, closedList, currentRecord.estimatedTotalCost + currentRecord.costSoFar, pGoalNode))
 					{
 						NodeRecord newRecord{};
-						newRecord.pNode = m_Graph->GetNode(currentpos.x, currentpos.y);
-						newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(startpos.x, startpos.y),m_Graph->GetIndex(currentpos.x, currentpos.y) });
+						newRecord.pNode = m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y));
+						newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(static_cast<int>(startpos.x), static_cast<int>(startpos.y))
+																					,m_Graph->GetIndex(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) });
 						newRecord.estimatedTotalCost = currentRecord.estimatedTotalCost + currentRecord.costSoFar;
 
 						CheckList(newRecord, closedList);
@@ -289,8 +303,9 @@ std::vector<GraphNode*> JPS::FindPath(GraphNode* pStartNode, GraphNode* pGoalNod
 					if (VerticalScan(currentpos, openList, closedList, currentRecord.estimatedTotalCost + currentRecord.costSoFar, pGoalNode))
 					{
 						NodeRecord newRecord{};
-						newRecord.pNode = m_Graph->GetNode(currentpos.x, currentpos.y);
-						newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(startpos.x, startpos.y),m_Graph->GetIndex(currentpos.x, currentpos.y) });
+						newRecord.pNode = m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y));
+						newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(static_cast<int>(startpos.x), static_cast<int>(startpos.y))
+																					,m_Graph->GetIndex(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) });
 						newRecord.estimatedTotalCost = currentRecord.estimatedTotalCost + currentRecord.costSoFar;
 
 						CheckList(newRecord, closedList);;
@@ -311,25 +326,27 @@ std::vector<GraphNode*> JPS::FindPath(GraphNode* pStartNode, GraphNode* pGoalNod
 			--currentpos.x;
 			--currentpos.y;
 			currentRecord.costSoFar += 1.5f;
-
-			if (m_Graph->isWallHere(currentpos.x, currentpos.y - 1) &&
-				m_Graph->isWallHere(currentpos.x - 1, currentpos.y) ||
-				!IsInBoundingBoxes(pGoalNode, m_Graph->GetNode(currentpos.x, currentpos.y))
-				|| !(m_Graph->isWithinBounds(currentpos.x, currentpos.y)) || (m_Graph->isWallHere(currentpos.x, currentpos.y)))
+			//Check if next diagonaal is corner
+			if (m_Graph->isWallHere(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y) - 1) &&
+				m_Graph->isWallHere(static_cast<int>(currentpos.x) - 1, static_cast<int>(currentpos.y)) ||
+				!IsInBoundingBoxes(pGoalNode, m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)))
+				|| !(m_Graph->isWithinBounds(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y))) 
+				|| (m_Graph->isWallHere(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y))))
 			{
 				doneWithMoving = true;
 			}
 			else
 			{
-				if (m_Graph->isWallHere(currentpos.x + 1, currentpos.y) ||
-					m_Graph->isWallHere(currentpos.x - 1, currentpos.y) ||
-					m_Graph->isWallHere(currentpos.x, currentpos.y + 1) ||
-					m_Graph->isWallHere(currentpos.x, currentpos.y - 1) ||
-					m_Graph->GetNode(currentpos.x, currentpos.y) == pGoalNode)
+				if (m_Graph->isWallHere(static_cast<int>(currentpos.x) + 1, static_cast<int>(currentpos.y)) ||
+					m_Graph->isWallHere(static_cast<int>(currentpos.x) - 1, static_cast<int>(currentpos.y)) ||
+					m_Graph->isWallHere(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y) + 1) ||
+					m_Graph->isWallHere(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y) - 1) ||
+					m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) == pGoalNode)
 				{
 					NodeRecord newRecord{};
-					newRecord.pNode = m_Graph->GetNode(currentpos.x, currentpos.y);
-					newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(startpos.x, startpos.y),m_Graph->GetIndex(currentpos.x, currentpos.y) });
+					newRecord.pNode = m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y));
+					newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(static_cast<int>(startpos.x), static_cast<int>(startpos.y))
+																				,m_Graph->GetIndex(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) });
 					newRecord.estimatedTotalCost = currentRecord.estimatedTotalCost + currentRecord.costSoFar;
 
 					CheckList(newRecord, openList);
@@ -341,8 +358,9 @@ std::vector<GraphNode*> JPS::FindPath(GraphNode* pStartNode, GraphNode* pGoalNod
 					if (HorizontalScan(currentpos, openList, closedList, currentRecord.estimatedTotalCost + currentRecord.costSoFar, pGoalNode))
 					{
 						NodeRecord newRecord{};
-						newRecord.pNode = m_Graph->GetNode(currentpos.x, currentpos.y);
-						newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(startpos.x, startpos.y),m_Graph->GetIndex(currentpos.x, currentpos.y) });
+						newRecord.pNode = m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y));
+						newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(static_cast<int>(startpos.x), static_cast<int>(startpos.y))
+																					,m_Graph->GetIndex(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) });
 						newRecord.estimatedTotalCost = currentRecord.estimatedTotalCost + currentRecord.costSoFar;
 
 						CheckList(newRecord, closedList);
@@ -351,8 +369,9 @@ std::vector<GraphNode*> JPS::FindPath(GraphNode* pStartNode, GraphNode* pGoalNod
 					if (VerticalScan(currentpos, openList, closedList, currentRecord.estimatedTotalCost + currentRecord.costSoFar, pGoalNode))
 					{
 						NodeRecord newRecord{};
-						newRecord.pNode = m_Graph->GetNode(currentpos.x, currentpos.y);
-						newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(startpos.x, startpos.y),m_Graph->GetIndex(currentpos.x, currentpos.y) });
+						newRecord.pNode = m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y));
+						newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(static_cast<int>(startpos.x), static_cast<int>(startpos.y))
+																					,m_Graph->GetIndex(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) });
 						newRecord.estimatedTotalCost = currentRecord.estimatedTotalCost + currentRecord.costSoFar;
 
 						CheckList(newRecord, closedList);
@@ -377,7 +396,6 @@ std::vector<GraphNode*> JPS::FindPath(GraphNode* pStartNode, GraphNode* pGoalNod
 			if (foundRecord.pNode->GetIndex() == currentRecord.pConnection->GetFrom())
 			{
 				allFoundRecord.push_back(foundRecord);
-				//currentRecord = foundRecord;
 			}
 		}
 		currentRecord = *std::min_element(allFoundRecord.begin(), allFoundRecord.end());
@@ -401,15 +419,17 @@ bool JPS::HorizontalScan(Vector2 startpos, std::vector<NodeRecord>& openList, st
 	{
 		++currentpos.x;
 		++newRecord.costSoFar;
-		if (m_Graph->isWithinBounds(currentpos.x, currentpos.y) && IsInBoundingBoxes(pGoalNode, m_Graph->GetNode(currentpos.x, currentpos.y)))
+		if (m_Graph->isWithinBounds(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) 
+			&& IsInBoundingBoxes(pGoalNode, m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y))))
 		{
-			GraphNode* nextNode{ m_Graph->GetNode(currentpos.x,currentpos.y) };
-			if (m_Graph->isWallHere(currentpos.x, currentpos.y + 1) ||
-				m_Graph->isWallHere(currentpos.x, currentpos.y - 1) ||
-				m_Graph->GetNode(currentpos.x,currentpos.y) == pGoalNode)
+			GraphNode* nextNode{ m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) };
+			if (m_Graph->isWallHere(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y) + 1) ||
+				m_Graph->isWallHere(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y) - 1) ||
+				m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) == pGoalNode)
 			{
-				newRecord.pNode = m_Graph->GetNode(currentpos.x, currentpos.y);
-				newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(startpos.x, startpos.y),m_Graph->GetIndex(currentpos.x, currentpos.y) });
+				newRecord.pNode = m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y));
+				newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(static_cast<int>(startpos.x), static_cast<int>(startpos.y))
+																			,m_Graph->GetIndex(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) });
 				newRecord.estimatedTotalCost = cost + newRecord.costSoFar;
 				newRecord.costSoFar = 0;
 
@@ -418,7 +438,7 @@ bool JPS::HorizontalScan(Vector2 startpos, std::vector<NodeRecord>& openList, st
 				doneWithMoving = true;
 				hasFoundConnection = true;
 			}
-			if (m_Graph->isWallHere(currentpos.x + 1, currentpos.y))
+			if (m_Graph->isWallHere(static_cast<int>(currentpos.x) + 1, static_cast<int>(currentpos.y)))
 			{
 				doneWithMoving = true;
 			}
@@ -438,15 +458,17 @@ bool JPS::HorizontalScan(Vector2 startpos, std::vector<NodeRecord>& openList, st
 	{
 		--currentpos.x;
 		++newRecord.costSoFar;
-		if (m_Graph->isWithinBounds(currentpos.x, currentpos.y) && IsInBoundingBoxes(pGoalNode, m_Graph->GetNode(currentpos.x, currentpos.y)))
+		if (m_Graph->isWithinBounds(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) 
+			&& IsInBoundingBoxes(pGoalNode, m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y))))
 		{
-			GraphNode* nextNode{ m_Graph->GetNode(currentpos.x,currentpos.y) };
-			if (m_Graph->isWallHere(currentpos.x, currentpos.y + 1) ||
-				m_Graph->isWallHere(currentpos.x, currentpos.y - 1) ||
-				m_Graph->GetNode(currentpos.x, currentpos.y) == pGoalNode)
+			GraphNode* nextNode{ m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) };
+			if (m_Graph->isWallHere(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y) + 1) ||
+				m_Graph->isWallHere(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y) - 1) ||
+				m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) == pGoalNode)
 			{
-				newRecord.pNode = m_Graph->GetNode(currentpos.x, currentpos.y);
-				newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(startpos.x, startpos.y),m_Graph->GetIndex(currentpos.x, currentpos.y) });
+				newRecord.pNode = m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y));
+				newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(static_cast<int>(startpos.x), static_cast<int>(startpos.y))
+																			,m_Graph->GetIndex(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) });
 				newRecord.estimatedTotalCost = cost + newRecord.costSoFar;
 				newRecord.costSoFar = 0;
 
@@ -455,7 +477,7 @@ bool JPS::HorizontalScan(Vector2 startpos, std::vector<NodeRecord>& openList, st
 				doneWithMoving = true;
 				hasFoundConnection = true;
 			}
-			if (m_Graph->isWallHere(currentpos.x - 1, currentpos.y))
+			if (m_Graph->isWallHere(static_cast<int>(currentpos.x) - 1, static_cast<int>(currentpos.y)))
 			{
 				doneWithMoving = true;
 			}
@@ -480,15 +502,16 @@ bool JPS::VerticalScan(Vector2 startpos, std::vector<NodeRecord>& openList, std:
 	{
 		++currentpos.y;
 		++newRecord.costSoFar;
-		if (m_Graph->isWithinBounds(currentpos.x, currentpos.y) && IsInBoundingBoxes(pGoalNode, m_Graph->GetNode(currentpos.x, currentpos.y)))
+		if (m_Graph->isWithinBounds(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) 
+			&& IsInBoundingBoxes(pGoalNode, m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y))))
 		{
-			GraphNode* nextNode{ m_Graph->GetNode(currentpos.x,currentpos.y) };
-			if (m_Graph->isWallHere(currentpos.x - 1, currentpos.y) ||
-				m_Graph->isWallHere(currentpos.x + 1, currentpos.y) ||
-				m_Graph->GetNode(currentpos.x, currentpos.y) == pGoalNode)
+			GraphNode* nextNode{ m_Graph->GetNode(static_cast<int>(currentpos.x),static_cast<int>(currentpos.y)) };
+			if (m_Graph->isWallHere(static_cast<int>(currentpos.x) - 1, static_cast<int>(currentpos.y)) ||
+				m_Graph->isWallHere(static_cast<int>(currentpos.x) + 1, static_cast<int>(currentpos.y)) ||
+				m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) == pGoalNode)
 			{
-				newRecord.pNode = m_Graph->GetNode(currentpos.x, currentpos.y);
-				newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(startpos.x, startpos.y),m_Graph->GetIndex(currentpos.x, currentpos.y) });
+				newRecord.pNode = m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y));
+				newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(static_cast<int>(startpos.x), static_cast<int>(startpos.y)),m_Graph->GetIndex(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) });
 				newRecord.estimatedTotalCost = cost + newRecord.costSoFar;
 				newRecord.costSoFar = 0;
 
@@ -497,7 +520,7 @@ bool JPS::VerticalScan(Vector2 startpos, std::vector<NodeRecord>& openList, std:
 				doneWithMoving = true;
 				hasFoundConnection = true;
 			}
-			if (m_Graph->isWallHere(currentpos.x, currentpos.y + 1))
+			if (m_Graph->isWallHere(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y) + 1))
 			{
 				doneWithMoving = true;
 			}
@@ -517,15 +540,17 @@ bool JPS::VerticalScan(Vector2 startpos, std::vector<NodeRecord>& openList, std:
 	{
 		--currentpos.y;
 		++newRecord.costSoFar;
-		if (m_Graph->isWithinBounds(currentpos.x, currentpos.y) && IsInBoundingBoxes(pGoalNode, m_Graph->GetNode(currentpos.x, currentpos.y)))
+		if (m_Graph->isWithinBounds(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) 
+			&& IsInBoundingBoxes(pGoalNode, m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y))))
 		{
-			GraphNode* nextNode{ m_Graph->GetNode(currentpos.x,currentpos.y) };
-			if (m_Graph->isWallHere(currentpos.x - 1, currentpos.y) ||
-				m_Graph->isWallHere(currentpos.x + 1, currentpos.y) ||
-				m_Graph->GetNode(currentpos.x, currentpos.y) == pGoalNode)
+			GraphNode* nextNode{ m_Graph->GetNode(static_cast<int>(currentpos.x),static_cast<int>(currentpos.y)) };
+			if (m_Graph->isWallHere(static_cast<int>(currentpos.x) - 1, static_cast<int>(currentpos.y)) ||
+				m_Graph->isWallHere(static_cast<int>(currentpos.x) + 1, static_cast<int>(currentpos.y)) ||
+				m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) == pGoalNode)
 			{
-				newRecord.pNode = m_Graph->GetNode(currentpos.x, currentpos.y);
-				newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(startpos.x, startpos.y),m_Graph->GetIndex(currentpos.x, currentpos.y) });
+				newRecord.pNode = m_Graph->GetNode(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y));
+				newRecord.pConnection = new GraphConnection(GraphConnection{ m_Graph->GetIndex(static_cast<int>(startpos.x), static_cast<int>(startpos.y))
+																			,m_Graph->GetIndex(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y)) });
 				newRecord.estimatedTotalCost = cost + newRecord.costSoFar;
 				newRecord.costSoFar = 0;
 
@@ -534,7 +559,7 @@ bool JPS::VerticalScan(Vector2 startpos, std::vector<NodeRecord>& openList, std:
 				doneWithMoving = true;
 				hasFoundConnection = true;
 			}
-			if (m_Graph->isWallHere(currentpos.x, currentpos.y - 1))
+			if (m_Graph->isWallHere(static_cast<int>(currentpos.x), static_cast<int>(currentpos.y) - 1))
 			{
 				doneWithMoving = true;
 			}

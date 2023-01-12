@@ -3,8 +3,12 @@
 
 #include "GP_JumpPointSearchWithGoalBounding.h"
 #include "GridGraph.h"
+#include <windowsx.h>
 
 #define MAX_LOADSTRING 100
+#define BTN_START  101
+#define BTN_GOAL  102
+#define BTN_PATH  103
 
 // Global Variables:
 HINSTANCE hInst;                                // current instance
@@ -83,16 +87,62 @@ int Engine::Run(GridGraph* gridGraph)
         m_Instance,
         nullptr);
 
+    HWND hwndButtonStart = CreateWindow(
+        L"BUTTON",  // Predefined class; Unicode assumed 
+        L"Set StartNode",      // Button text 
+        WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // Styles 
+        637,         // x position 
+        20,         // y position 
+        100,        // Button width
+        30,        // Button height
+        hWnd,     // Parent window
+        (HMENU)BTN_START,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+        );
+
+    HWND hwndButtonGoal = CreateWindow(
+        L"BUTTON",  // Predefined class; Unicode assumed 
+        L"Set GoalNode",      // Button text 
+        WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // Styles 
+        637,         // x position 
+        70,         // y position 
+        100,        // Button width
+        30,        // Button height
+        hWnd,     // Parent window
+        (HMENU)BTN_GOAL,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );
+
+    HWND hwndButtonPath = CreateWindow(
+        L"BUTTON",  // Predefined class; Unicode assumed 
+        L"Draw Path",      // Button text 
+        WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // Styles 
+        637,         // x position 
+        120,         // y position 
+        100,        // Button width
+        30,        // Button height
+        hWnd,     // Parent window
+        (HMENU)BTN_PATH,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );
+
     if (!hWnd)
     {
         MessageBox(NULL, L"Failure to create program window", L"Error", MB_ICONERROR);
-
-        // this would be a nice place for a throw
     }
 
     // (4) Set the window to show
     ShowWindow(hWnd, m_Show);	    // set the window to show mode
     UpdateWindow(hWnd);	            // update
+    ShowWindow(hwndButtonStart, m_Show);
+    UpdateWindow(hwndButtonStart);
+    ShowWindow(hwndButtonGoal, m_Show);
+    UpdateWindow(hwndButtonGoal);
+    ShowWindow(hwndButtonPath, m_Show);
+    UpdateWindow(hwndButtonPath);
 
     // (5) load keyboard shortcuts, start the Windows message loop
     HACCEL hAccelTable = LoadAccelerators(m_Instance, MAKEINTRESOURCE(IDC_GPJUMPPOINTSEARCHWITHGOALBOUNDING));
@@ -117,13 +167,31 @@ LRESULT Engine::HandleEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
     switch (message)
     {
     case WM_PAINT:
-    {
+        //Draw Paint
         PAINTSTRUCT ps;
         m_hDC = BeginPaint(hWnd, &ps);
         m_pGridGraph->DrawGrid();
         EndPaint(hWnd, &ps);
-    }
     break;
+    case WM_COMMAND:
+        //Buttons
+        if (LOWORD(wParam) == BTN_START)
+        {
+            m_pGridGraph->toggleStart();
+        }
+        if (LOWORD(wParam) == BTN_GOAL)
+        {
+            m_pGridGraph->toggleGoal();
+        }
+        if (LOWORD(wParam) == BTN_PATH)
+        {
+            m_pGridGraph->CalculatePath();
+        }
+    case WM_LBUTTONUP:
+        //set start and goal nodes
+        m_pGridGraph->SetStartAndGoalNode(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), true);
+        InvalidateRect(hWnd, nullptr, true);
+        break;
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
@@ -163,12 +231,6 @@ void Engine::DrawRect(int x1, int y1, int width, int height)
     LineTo(m_hDC, x1 + width, y1 + height);
     LineTo(m_hDC, x1, y1 + height);
     LineTo(m_hDC, x1, y1);
-    /*MoveToEx(m_hDC, x1, y1, 0);
-    LineTo(m_hDC, x1, y1 + height);
-    MoveToEx(m_hDC, x1 + width, y1 + height, 0);
-    LineTo(m_hDC, x1 + width, y1);
-    MoveToEx(m_hDC, x1 + width, y1 + height, 0);
-    LineTo(m_hDC, x1, y1 + height);*/
 
     SelectObject(m_hDC, oldPen);
     DeleteObject(pen);
